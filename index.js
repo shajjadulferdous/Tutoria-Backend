@@ -1,7 +1,7 @@
 const express = require('express')
 require('dotenv').config()
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT;
 app.use(cors());
@@ -30,14 +30,28 @@ async function run() {
     const db = client.db('tutoria');
     const tutorCollection = db.collection('tutors');
     app.get('/tutors' , async(req , res)=>{
-         const tutors = await tutorCollection.find().toArray();
+         const ans = req.query.limit;
+         const limit = Number(ans);
+         const tutors = await tutorCollection.find().limit(limit).toArray();
          res.send(tutors);
     })
+    app.get('/tutors/:id' , async(req , res)=>{
+        const ans = req.params.id;
+        const tutor = await tutorCollection.findOne(
+          {_id:new ObjectId(ans)}
+        )
+        res.send(tutor);
+    })
+    app.post('/my-tutors', async(req , res)=>{
+         const tutor = req.body;
+         const add = await tutorCollection.insertOne(tutor);
+         res.json(add);
+    })
+    app.get()
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+   
   }
 }
 run().catch(console.dir);
