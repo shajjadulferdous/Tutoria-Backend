@@ -47,7 +47,13 @@ async function run() {
          const add = await tutorCollection.insertOne(tutor);
          res.json(add);
     })
-    app.get()
+    app.get('/my-tutors/:id', async(req , res)=>{
+         const {id} = req?.params;
+         const result = await tutorCollection.find({
+          addedBy:id
+         })
+         res.send(result);
+    })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -55,11 +61,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-
-
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
