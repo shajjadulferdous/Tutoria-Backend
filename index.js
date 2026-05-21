@@ -30,12 +30,14 @@ async function run() {
     const db = client.db('tutoria');
     const tutorCollection = db.collection('tutors');
     const BookingCollection = db.collection('bookings');
+
     app.get('/tutors' , async(req , res)=>{
          const ans = req.query.limit;
          const limit = Number(ans);
          const tutors = await tutorCollection.find().limit(limit).toArray();
          res.send(tutors);
     })
+
     app.get('/tutors/:id' , async(req , res)=>{
         const ans = req.params.id;
         const tutor = await tutorCollection.findOne(
@@ -43,11 +45,13 @@ async function run() {
         )
         res.send(tutor);
     })
+
     app.post('/my-tutors', async(req , res)=>{
          const tutor = req.body;
          const add = await tutorCollection.insertOne(tutor);
          res.json(add);
     })
+
     app.get('/my-tutors/:id', async(req , res)=>{
          const {id} = req?.params;
          const result = await tutorCollection.find({
@@ -55,11 +59,13 @@ async function run() {
          }).toArray();
          res.send(result);
     })
+
     app.delete('/my-tutors/:id' , async(req , res)=>{
          const {id} = req?.params;
          const result = await tutorCollection.deleteOne({_id:new ObjectId(id)});
          res.send(result);
     })
+
     app.patch('/my-tutors/:id' , async(req , res)=>{
          const {id} = req?.params;
          const data = req?.body;
@@ -79,7 +85,13 @@ async function run() {
          );
          res.json(result);
     })
-    
+    app.get('my-session/:id' , async( req , res)=>{
+        const id = req.params.id;
+        const result = await BookingCollection.find(
+          {userId:id}
+        ).toArray();
+        res.json(result);
+    })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
