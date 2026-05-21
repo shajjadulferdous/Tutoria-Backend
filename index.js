@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
     const db = client.db('tutoria');
     const tutorCollection = db.collection('tutors');
+    const BookingCollection = db.collection('bookings');
     app.get('/tutors' , async(req , res)=>{
          const ans = req.query.limit;
          const limit = Number(ans);
@@ -58,6 +59,25 @@ async function run() {
          const {id} = req?.params;
          const result = await tutorCollection.deleteOne({_id:new ObjectId(id)});
          res.send(result);
+    })
+    app.patch('/my-tutors/:id' , async(req , res)=>{
+         const {id} = req?.params;
+         const data = req?.body;
+         const result = await tutorCollection.updateOne({
+          _id:new ObjectId(id) },
+          { $set:{
+              ...data
+           }}
+         );
+         res.send(result);
+    })
+
+    app.post('/my-session' , async(req , res)=>{
+         const data = req?.body;
+         const result = await BookingCollection.insertOne(
+           data
+         );
+         res.json(result);
     })
     
     await client.db("admin").command({ ping: 1 });
