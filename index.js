@@ -80,10 +80,21 @@ async function run() {
 
     app.post('/my-session' , async(req , res)=>{
          const data = req?.body;
-         const result = await BookingCollection.insertOne(
+         const bookingResult = await BookingCollection.insertOne(
            data
          );
-         res.json(result);
+         
+         const tutorId = data.tutorId;
+
+        const updateResult = await tutorCollection.updateOne(
+          { _id: tutorId },
+          {
+            $inc: {
+              totalSlot: -1,
+            },
+          }
+        );
+         res.json(bookingResult , updateResult);
     })
     app.get('/my-session/:id' , async( req , res)=>{
         const id = req.params.id;
