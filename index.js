@@ -85,12 +85,26 @@ async function run() {
          );
          res.json(result);
     })
-    app.get('my-session/:id' , async( req , res)=>{
+    app.get('/my-session/:id' , async( req , res)=>{
         const id = req.params.id;
         const result = await BookingCollection.find(
           {userId:id}
         ).toArray();
         res.json(result);
+    })
+    app.patch('/my-session/:id' , async(req , res)=>{
+          const id = req.params.id;
+          const data = req.body;
+          const result = await BookingCollection.updateOne({
+             _id:new ObjectId(id)
+          },
+          {
+            $set:{
+               ...data
+            }
+          }
+        )
+        res.send(result)
     })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
