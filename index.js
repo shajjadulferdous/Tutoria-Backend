@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 async function validateToken(token) {
   try {
     const JWKS = createRemoteJWKSet(
-      new URL('http://localhost:3000/api/auth/jwks')
+      new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
     )
     const { payload } = await jwtVerify(token, JWKS)
     return payload;
@@ -62,7 +62,7 @@ const JwtVerify = async(req , res , next)=>{
 async function run() {
   try {
     
-    await client.connect();
+    // await client.connect();
     const db = client.db('tutoria');
     const tutorCollection = db.collection('tutors');
     const BookingCollection = db.collection('bookings');
@@ -123,7 +123,7 @@ async function run() {
         const tutorId = data.tutorId;
 
         const updateResult = await tutorCollection.updateOne(
-          { _id: tutorId },
+          { _id: new ObjectId(tutorId) },
           {
             $inc: {
               totalSlot: -1,
@@ -156,7 +156,7 @@ async function run() {
         const tutorId = data.tutorId;
 
         const updateResult = await tutorCollection.updateOne(
-          { _id: tutorId },
+          {  _id: new ObjectId(tutorId)},
           {
             $inc: {
               totalSlot: 1,
@@ -167,7 +167,26 @@ async function run() {
         res.send({result , updateResult})
     })
 
-    await client.db("admin").command({ ping: 1 });
+    app.get("/tutoria", async (req, res) => {
+      const { search, startDate } = req.query;
+      let query = {};
+
+      if (search) {
+        query.name = {
+          $regex: search,
+          $options: "i",
+        };
+      }
+       if (startDate) {
+         query.sessionStartDate = {}; 
+         query.sessionStartDate.$gte = startDate;  
+      }
+      const tutors = await tutorCollection
+        .find(query)
+        .toArray();
+        res.send(tutors);
+   });
+    
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
    
