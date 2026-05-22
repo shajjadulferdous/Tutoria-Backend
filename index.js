@@ -120,7 +120,7 @@ async function run() {
            data
          );
          
-         const tutorId = data.tutorId;
+        const tutorId = data.tutorId;
 
         const updateResult = await tutorCollection.updateOne(
           { _id: tutorId },
@@ -130,7 +130,7 @@ async function run() {
             },
           }
         );
-         res.json(bookingResult , updateResult);
+         res.json({bookingResult , updateResult});
     })
 
     app.get('/my-session/:id', JwtVerify , async( req , res)=>{
@@ -153,7 +153,18 @@ async function run() {
             }
           }
         )
-        res.send(result)
+        const tutorId = data.tutorId;
+
+        const updateResult = await tutorCollection.updateOne(
+          { _id: tutorId },
+          {
+            $inc: {
+              totalSlot: 1,
+            },
+          }
+        );
+
+        res.send({result , updateResult})
     })
 
     await client.db("admin").command({ ping: 1 });
