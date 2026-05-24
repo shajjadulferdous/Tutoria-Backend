@@ -62,7 +62,6 @@ const JwtVerify = async(req , res , next)=>{
 async function run() {
   try {
     
-    // await client.connect();
     const db = client.db('tutoria');
     const tutorCollection = db.collection('tutors');
     const BookingCollection = db.collection('bookings');
@@ -84,6 +83,7 @@ async function run() {
 
     app.post('/my-tutors', JwtVerify ,  async(req , res)=>{
          const tutor = req.body;
+         tutor.totalSlot = Number(req.body.totalSlot);
          const add = await tutorCollection.insertOne(tutor);
          res.json(add);
     })
@@ -149,7 +149,8 @@ async function run() {
           },
           {
             $set:{
-               ...data
+               ...data,
+                totalSlot: Number(req.body.totalSlot)
             }
           }
         )
